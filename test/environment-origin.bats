@@ -3,36 +3,36 @@
 load test_helper
 
 setup() {
-  mkdir -p "$RBENV_TEST_DIR"
-  cd "$RBENV_TEST_DIR"
+  mkdir -p "$CFENV_TEST_DIR"
+  cd "$CFENV_TEST_DIR"
 }
 
 @test "reports global file even if it doesn't exist" {
-  assert [ ! -e "${RBENV_ROOT}/version" ]
-  run rbenv-version-origin
-  assert_success "${RBENV_ROOT}/version"
+  assert [ ! -e "${CFENV_ROOT}/environment" ]
+  run cfenv-environment-origin
+  assert_success "${CFENV_ROOT}/environment"
 }
 
 @test "detects global file" {
-  mkdir -p "$RBENV_ROOT"
-  touch "${RBENV_ROOT}/version"
-  run rbenv-version-origin
-  assert_success "${RBENV_ROOT}/version"
+  mkdir -p "$CFENV_ROOT"
+  touch "${CFENV_ROOT}/environment"
+  run cfenv-environment-origin
+  assert_success "${CFENV_ROOT}/environment"
 }
 
-@test "detects RBENV_VERSION" {
-  RBENV_VERSION=1 run rbenv-version-origin
-  assert_success "RBENV_VERSION environment variable"
+@test "detects CFENV_ENVIRONMENT" {
+  CFENV_ENVIRONMENT=1 run cfenv-environment-origin
+  assert_success "CFENV_ENVIRONMENT environment variable"
 }
 
 @test "detects local file" {
-  touch .ruby-version
-  run rbenv-version-origin
-  assert_success "${PWD}/.ruby-version"
+  touch .cf-environment
+  run cfenv-environment-origin
+  assert_success "${PWD}/.cf-environment"
 }
 
-@test "detects alternate version file" {
-  touch .rbenv-version
-  run rbenv-version-origin
-  assert_success "${PWD}/.rbenv-version"
+@test "detects alternate environment file" {
+  touch .cfenv-environment
+  run cfenv-environment-origin
+  assert_success "${PWD}/.cfenv-environment"
 }
