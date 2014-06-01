@@ -1,55 +1,55 @@
 #!/usr/bin/env bash
 #
-# Summary: Set or show the local application-specific Ruby version
+# Summary: Set or show the local application-specific Cloud Foundry environment
 #
-# Usage: rbenv local <version>
-#        rbenv local --unset
+# Usage: cfenv local <environment>
+#        cfenv local --unset
 #
-# Sets the local application-specific Ruby version by writing the
-# version name to a file named `.ruby-version'.
+# Sets the local application-specific Cloud Foundry environment by writing the
+# environment name to a file named `.cf-environment'.
 #
-# When you run a Ruby command, rbenv will look for a `.ruby-version'
+# When you run a Cloud Foundry command, cfenv will look for a `.cf-environment'
 # file in the current directory and each parent directory. If no such
-# file is found in the tree, rbenv will use the global Ruby version
-# specified with `rbenv global'. A version specified with the
-# `RBENV_VERSION' environment variable takes precedence over local
-# and global versions.
+# file is found in the tree, cfenv will use the global Cloud Foundry environment
+# specified with `cfenv global'. A environment specified with the
+# `CFENV_ENVIRONMENT' environment variable takes precedence over local
+# and global environments.
 #
-# For backwards compatibility, rbenv will also read version
-# specifications from `.rbenv-version' files, but a `.ruby-version'
+# For backwards compatibility, cfenv will also read environment
+# specifications from `.cfenv-environment' files, but a `.cf-environment'
 # file in the same directory takes precedence.
 #
-# <version> should be a string matching a Ruby version known to rbenv.
-# The special version string `system' will use your default system Ruby.
-# Run `rbenv versions' for a list of available Ruby versions.
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
-# Provide rbenv completions
+# Provide cfenv completions
 if [ "$1" = "--complete" ]; then
   echo --unset
   echo system
-  exec rbenv-versions --bare
+  exec cfenv-environments --bare
 fi
 
-RBENV_VERSION="$1"
+CFENV_ENVIRONMENT="$1"
 
-if [ "$RBENV_VERSION" = "--unset" ]; then
-  rm -f .ruby-version .rbenv-version
-elif [ -n "$RBENV_VERSION" ]; then
-  previous_file="$(RBENV_VERSION= rbenv-version-origin || true)"
-  rbenv-version-file-write .ruby-version "$RBENV_VERSION"
-  if [ "$previous_file" -ef .rbenv-version ]; then
-    rm -f .rbenv-version
-    { echo "rbenv: removed existing \`.rbenv-version' file and migrated"
-      echo "       local version specification to \`.ruby-version' file"
+if [ "$CFENV_ENVIRONMENT" = "--unset" ]; then
+  rm -f .cf-environment .cfenv-environment
+elif [ -n "$CFENV_ENVIRONMENT" ]; then
+  previous_file="$(CFENV_ENVIRONMENT= cfenv-environment-origin || true)"
+  cfenv-environment-file-write .cf-environment "$CFENV_ENVIRONMENT"
+  if [ "$previous_file" -ef .cfenv-environment ]; then
+    rm -f .cfenv-environment
+    { echo "cfenv: removed existing \`.cfenv-environment' file and migrated"
+      echo "       local environment specification to \`.cf-environment' file"
     } >&2
   fi
 else
-  rbenv-version-file-read .ruby-version ||
-  rbenv-version-file-read .rbenv-version ||
-  { echo "rbenv: no local version configured for this directory"
+  cfenv-environment-file-read .cf-environment ||
+  cfenv-environment-file-read .cfenv-environment ||
+  { echo "cfenv: no local environment configured for this directory"
     exit 1
   } >&2
 fi
