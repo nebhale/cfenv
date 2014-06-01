@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Usage: rbenv version-file-read <file>
+# Usage: cfenv environment-file-read <file>
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
-VERSION_FILE="$1"
+ENVIRONMENT_FILE="$1"
 
-if [ -e "$VERSION_FILE" ]; then
-  # Read the first non-whitespace word from the specified version file.
+if [ -e "$ENVIRONMENT_FILE" ]; then
+  # Read the first non-whitespace word from the specified environment file.
   # Be careful not to load it whole in case there's something crazy in it.
   IFS="${IFS}"$'\r'
-  words=( $(cut -b 1-1024 "$VERSION_FILE") )
-  version="${words[0]}"
+  words=( $(cut -b 1-1024 "$ENVIRONMENT_FILE") )
+  environment="${words[0]}"
 
-  if [ -n "$version" ]; then
-    echo "$version"
+  if [ -n "$environment" ]; then
+    echo "$environment"
     exit
   fi
 fi
