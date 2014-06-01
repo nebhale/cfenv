@@ -1,39 +1,39 @@
 #!/usr/bin/env bash
-# Summary: List all Ruby versions available to rbenv
-# Usage: rbenv versions [--bare]
+# Summary: List all Cloud Foundry environments available to cfenv
+# Usage: cfenv environments [--bare]
 #
-# Lists all Ruby versions found in `$RBENV_ROOT/versions/*'.
+# Lists all Cloud Foundry environments found in `$CFENV_ROOT/environments/*'.
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
 if [ "$1" = "--bare" ]; then
   hit_prefix=""
   miss_prefix=""
-  current_version=""
+  current_environment=""
   include_system=""
 else
   hit_prefix="* "
   miss_prefix="  "
-  current_version="$(rbenv-version-name || true)"
+  current_environment="$(cfenv-environment-name || true)"
   include_system="1"
 fi
 
-print_version() {
-  if [ "$1" == "$current_version" ]; then
-    echo "${hit_prefix}$(rbenv-version 2>/dev/null)"
+print_environment() {
+  if [ "$1" == "$current_environment" ]; then
+    echo "${hit_prefix}$(cfenv-environment 2>/dev/null)"
   else
     echo "${miss_prefix}$1"
   fi
 }
 
 # Include "system" in the non-bare output, if it exists
-if [ -n "$include_system" ] && RBENV_VERSION=system rbenv-which ruby >/dev/null 2>&1; then
-  print_version system
+if [ -n "$include_system" ] && CFENV_ENVIRONMENT=system cfenv-which cf >/dev/null 2>&1; then
+  print_environment system
 fi
 
-for path in "${RBENV_ROOT}/versions/"*; do
+for path in "${CFENV_ROOT}/environments/"*; do
   if [ -d "$path" ]; then
-    print_version "${path##*/}"
+    print_environment "${path##*/}"
   fi
 done

@@ -2,83 +2,83 @@
 
 load test_helper
 
-create_version() {
-  mkdir -p "${RBENV_ROOT}/versions/$1"
+create_environment() {
+  mkdir -p "${CFENV_ROOT}/environments/$1"
 }
 
 setup() {
-  mkdir -p "$RBENV_TEST_DIR"
-  cd "$RBENV_TEST_DIR"
+  mkdir -p "$CFENV_TEST_DIR"
+  cd "$CFENV_TEST_DIR"
 }
 
 stub_system_ruby() {
-  local stub="${RBENV_TEST_DIR}/bin/ruby"
+  local stub="${CFENV_TEST_DIR}/bin/ruby"
   mkdir -p "$(dirname "$stub")"
   touch "$stub" && chmod +x "$stub"
 }
 
-@test "no versions installed" {
+@test "no environments installed" {
   stub_system_ruby
-  assert [ ! -d "${RBENV_ROOT}/versions" ]
-  run rbenv-versions
-  assert_success "* system (set by ${RBENV_ROOT}/version)"
+  assert [ ! -d "${CFENV_ROOT}/environments" ]
+  run cfenv-environments
+  assert_success "* system (set by ${CFENV_ROOT}/environment)"
 }
 
-@test "bare output no versions installed" {
-  assert [ ! -d "${RBENV_ROOT}/versions" ]
-  run rbenv-versions --bare
+@test "bare output no environments installed" {
+  assert [ ! -d "${CFENV_ROOT}/environments" ]
+  run cfenv-environments --bare
   assert_success ""
 }
 
-@test "single version installed" {
+@test "single environment installed" {
   stub_system_ruby
-  create_version "1.9"
-  run rbenv-versions
+  create_environment "1.9"
+  run cfenv-environments
   assert_success
   assert_output <<OUT
-* system (set by ${RBENV_ROOT}/version)
+* system (set by ${CFENV_ROOT}/environment)
   1.9
 OUT
 }
 
-@test "single version bare" {
-  create_version "1.9"
-  run rbenv-versions --bare
+@test "single environment bare" {
+  create_environment "1.9"
+  run cfenv-environments --bare
   assert_success "1.9"
 }
 
-@test "multiple versions" {
+@test "multiple environments" {
   stub_system_ruby
-  create_version "1.8.7"
-  create_version "1.9.3"
-  create_version "2.0.0"
-  run rbenv-versions
+  create_environment "1.8.7"
+  create_environment "1.9.3"
+  create_environment "2.0.0"
+  run cfenv-environments
   assert_success
   assert_output <<OUT
-* system (set by ${RBENV_ROOT}/version)
+* system (set by ${CFENV_ROOT}/environment)
   1.8.7
   1.9.3
   2.0.0
 OUT
 }
 
-@test "indicates current version" {
+@test "indicates current environment" {
   stub_system_ruby
-  create_version "1.9.3"
-  create_version "2.0.0"
-  RBENV_VERSION=1.9.3 run rbenv-versions
+  create_environment "1.9.3"
+  create_environment "2.0.0"
+  CFENV_ENVIRONMENT=1.9.3 run cfenv-environments
   assert_success
   assert_output <<OUT
   system
-* 1.9.3 (set by RBENV_VERSION environment variable)
+* 1.9.3 (set by CFENV_ENVIRONMENT environment variable)
   2.0.0
 OUT
 }
 
-@test "bare doesn't indicate current version" {
-  create_version "1.9.3"
-  create_version "2.0.0"
-  RBENV_VERSION=1.9.3 run rbenv-versions --bare
+@test "bare doesn't indicate current environment" {
+  create_environment "1.9.3"
+  create_environment "2.0.0"
+  CFENV_ENVIRONMENT=1.9.3 run cfenv-environments --bare
   assert_success
   assert_output <<OUT
 1.9.3
@@ -86,30 +86,30 @@ OUT
 OUT
 }
 
-@test "globally selected version" {
+@test "globally selected environment" {
   stub_system_ruby
-  create_version "1.9.3"
-  create_version "2.0.0"
-  cat > "${RBENV_ROOT}/version" <<<"1.9.3"
-  run rbenv-versions
+  create_environment "1.9.3"
+  create_environment "2.0.0"
+  cat > "${CFENV_ROOT}/environment" <<<"1.9.3"
+  run cfenv-environments
   assert_success
   assert_output <<OUT
   system
-* 1.9.3 (set by ${RBENV_ROOT}/version)
+* 1.9.3 (set by ${CFENV_ROOT}/environment)
   2.0.0
 OUT
 }
 
-@test "per-project version" {
+@test "per-project environment" {
   stub_system_ruby
-  create_version "1.9.3"
-  create_version "2.0.0"
-  cat > ".ruby-version" <<<"1.9.3"
-  run rbenv-versions
+  create_environment "1.9.3"
+  create_environment "2.0.0"
+  cat > ".cf-environment" <<<"1.9.3"
+  run cfenv-environments
   assert_success
   assert_output <<OUT
   system
-* 1.9.3 (set by ${RBENV_TEST_DIR}/.ruby-version)
+* 1.9.3 (set by ${CFENV_TEST_DIR}/.cf-environment)
   2.0.0
 OUT
 }
