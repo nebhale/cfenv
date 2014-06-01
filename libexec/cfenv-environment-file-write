@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Usage: rbenv version-file-write <file> <version>
+# Usage: cfenv environment-file-write <file> <environment>
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
-RBENV_VERSION_FILE="$1"
-RBENV_VERSION="$2"
+CFENV_ENVIRONMENT_FILE="$1"
+CFENV_ENVIRONMENT="$2"
 
-if [ -z "$RBENV_VERSION" ] || [ -z "$RBENV_VERSION_FILE" ]; then
-  rbenv-help --usage version-file-write >&2
+if [ -z "$CFENV_ENVIRONMENT" ] || [ -z "$CFENV_ENVIRONMENT_FILE" ]; then
+  cfenv-help --usage environment-file-write >&2
   exit 1
 fi
 
-# Make sure the specified version is installed.
-rbenv-prefix "$RBENV_VERSION" >/dev/null
+# Make sure the specified environment is installed.
+cfenv-prefix "$CFENV_ENVIRONMENT" >/dev/null
 
-# Write the version out to disk.
-echo "$RBENV_VERSION" > "$RBENV_VERSION_FILE"
+# Write the environment out to disk.
+echo "$CFENV_ENVIRONMENT" > "$CFENV_ENVIRONMENT_FILE"

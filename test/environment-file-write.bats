@@ -3,28 +3,28 @@
 load test_helper
 
 setup() {
-  mkdir -p "$RBENV_TEST_DIR"
-  cd "$RBENV_TEST_DIR"
+  mkdir -p "$CFENV_TEST_DIR"
+  cd "$CFENV_TEST_DIR"
 }
 
 @test "invocation without 2 arguments prints usage" {
-  run rbenv-version-file-write
-  assert_failure "Usage: rbenv version-file-write <file> <version>"
-  run rbenv-version-file-write "one" ""
+  run cfenv-environment-file-write
+  assert_failure "Usage: cfenv environment-file-write <file> <environment>"
+  run cfenv-environment-file-write "one" ""
   assert_failure
 }
 
-@test "setting nonexistent version fails" {
-  assert [ ! -e ".ruby-version" ]
-  run rbenv-version-file-write ".ruby-version" "1.8.7"
-  assert_failure "rbenv: version \`1.8.7' not installed"
-  assert [ ! -e ".ruby-version" ]
+@test "setting nonexistent environment fails" {
+  assert [ ! -e ".cf-environment" ]
+  run cfenv-environment-file-write ".cf-environment" "1.8.7"
+  assert_failure "cfenv: environment \`1.8.7' not installed"
+  assert [ ! -e ".cf-environment" ]
 }
 
 @test "writes value to arbitrary file" {
-  mkdir -p "${RBENV_ROOT}/versions/1.8.7"
-  assert [ ! -e "my-version" ]
-  run rbenv-version-file-write "${PWD}/my-version" "1.8.7"
+  mkdir -p "${CFENV_ROOT}/environments/1.8.7"
+  assert [ ! -e "my-environment" ]
+  run cfenv-environment-file-write "${PWD}/my-environment" "1.8.7"
   assert_success ""
-  assert [ "$(cat my-version)" = "1.8.7" ]
+  assert [ "$(cat my-environment)" = "1.8.7" ]
 }
