@@ -5,7 +5,7 @@ load test_helper
 create_executable() {
   name="${1?}"
   shift 1
-  bin="${RBENV_ROOT}/versions/${RBENV_VERSION}/bin"
+  bin="${CFENV_ROOT}/environments/${CFENV_ENVIRONMENT}/bin"
   mkdir -p "$bin"
   { if [ $# -eq 0 ]; then cat -
     else echo "$@"
@@ -14,54 +14,54 @@ create_executable() {
   chmod +x "${bin}/$name"
 }
 
-@test "fails with invalid version" {
-  export RBENV_VERSION="2.0"
-  run rbenv-exec ruby -v
-  assert_failure "rbenv: version \`2.0' is not installed"
+@test "fails with invalid environment" {
+  export CFENV_ENVIRONMENT="2.0"
+  run cfenv-exec cf -v
+  assert_failure "cfenv: environment \`2.0' is not installed"
 }
 
 @test "completes with names of executables" {
-  export RBENV_VERSION="2.0"
-  create_executable "ruby" "#!/bin/sh"
+  export CFENV_ENVIRONMENT="2.0"
+  create_executable "cf" "#!/bin/sh"
   create_executable "rake" "#!/bin/sh"
 
-  rbenv-rehash
-  run rbenv-completions exec
+  cfenv-rehash
+  run cfenv-completions exec
   assert_success
   assert_output <<OUT
+cf
 rake
-ruby
 OUT
 }
 
 @test "supports hook path with spaces" {
-  hook_path="${RBENV_TEST_DIR}/custom stuff/rbenv hooks"
+  hook_path="${CFENV_TEST_DIR}/custom stuff/cfenv hooks"
   mkdir -p "${hook_path}/exec"
   echo "export HELLO='from hook'" > "${hook_path}/exec/hello.bash"
 
-  export RBENV_VERSION=system
-  RBENV_HOOK_PATH="$hook_path" run rbenv-exec env
+  export CFENV_ENVIRONMENT=system
+  CFENV_HOOK_PATH="$hook_path" run cfenv-exec env
   assert_success
   assert_line "HELLO=from hook"
 }
 
 @test "carries original IFS within hooks" {
-  hook_path="${RBENV_TEST_DIR}/rbenv.d"
+  hook_path="${CFENV_TEST_DIR}/cfenv.d"
   mkdir -p "${hook_path}/exec"
   cat > "${hook_path}/exec/hello.bash" <<SH
 hellos=(\$(printf "hello\\tugly world\\nagain"))
 echo HELLO="\$(printf ":%s" "\${hellos[@]}")"
 SH
 
-  export RBENV_VERSION=system
-  RBENV_HOOK_PATH="$hook_path" IFS=$' \t\n' run rbenv-exec env
+  export CFENV_ENVIRONMENT=system
+  CFENV_HOOK_PATH="$hook_path" IFS=$' \t\n' run cfenv-exec env
   assert_success
   assert_line "HELLO=:hello:ugly:world:again"
 }
 
 @test "forwards all arguments" {
-  export RBENV_VERSION="2.0"
-  create_executable "ruby" <<SH
+  export CFENV_ENVIRONMENT="2.0"
+  create_executable "cf" <<SH
 #!$BASH
 echo \$0
 for arg; do
@@ -70,44 +70,44 @@ for arg; do
 done
 SH
 
-  run rbenv-exec ruby -w "/path to/ruby script.rb" -- extra args
+  run cfenv-exec cf -w "/path to/cf script.cf" -- extra args
   assert_success
   assert_output <<OUT
-${RBENV_ROOT}/versions/2.0/bin/ruby
+${CFENV_ROOT}/environments/2.0/bin/cf
   -w
-  /path to/ruby script.rb
+  /path to/cf script.cf
   --
   extra
   args
 OUT
 }
 
-@test "supports ruby -S <cmd>" {
-  export RBENV_VERSION="2.0"
+@test "supports cf -S <cmd>" {
+  export CFENV_ENVIRONMENT="2.0"
 
-  # emulate `ruby -S' behavior
-  create_executable "ruby" <<SH
+  # emulate `cf -S' behavior
+  create_executable "cf" <<SH
 #!$BASH
 if [[ \$1 == "-S"* ]]; then
-  found="\$(PATH="\${RUBYPATH:-\$PATH}" which \$2)"
-  # assert that the found executable has ruby for shebang
-  if head -1 "\$found" | grep ruby >/dev/null; then
+  found="\$(PATH="\${CFPATH:-\$PATH}" which \$2)"
+  # assert that the found executable has cf for shebang
+  if head -1 "\$found" | grep cf >/dev/null; then
     \$BASH "\$found"
   else
-    echo "ruby: no Ruby script found in input (LoadError)" >&2
+    echo "cf: no Cf script found in input (LoadError)" >&2
     exit 1
   fi
 else
-  echo 'ruby 2.0 (rbenv test)'
+  echo 'cf 2.0 (cfenv test)'
 fi
 SH
 
   create_executable "rake" <<SH
-#!/usr/bin/env ruby
+#!/usr/bin/env cf
 echo hello rake
 SH
 
-  rbenv-rehash
-  run ruby -S rake
+  cfenv-rehash
+  run cf -S rake
   assert_success "hello rake"
 }
