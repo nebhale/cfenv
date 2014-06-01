@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Summary: Run an executable with the selected Cloud Foundry environment
+#
+# Usage: cfenv exec <command> [arg1 arg2...]
+#
+# Runs an executable by first preparing PATH so that the selected Cloud Foundry
+# environment's `bin' directory is at the front.
+#
+# For example, if the currently selected Cloud Foundry environment is 1.9.3-p327:
+#   cfenv exec bundle install
+#
+# is equivalent to:
+#   PATH="$CFENV_ROOT/environments/1.9.3-p327/bin:$PATH" bundle install
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+# Provide cfenv completions
+if [ "$1" = "--complete" ]; then
+  exec cfenv shims --short
+fi
+
+CFENV_ENVIRONMENT="$(cfenv-environment-name)"
+CFENV_COMMAND="$1"
+
+if [ -z "$CFENV_COMMAND" ]; then
+  cfenv-help --usage exec >&2
+  exit 1
+fi
+
+export CFENV_ENVIRONMENT
+CFENV_COMMAND_PATH="$(cfenv-which "$CFENV_COMMAND")"
+CFENV_BIN_PATH="${CFENV_COMMAND_PATH%/*}"
+
+OLDIFS="$IFS"
+IFS=$'\n' scripts=(`cfenv-hooks exec`)
+IFS="$OLDIFS"
+for script in "${scripts[@]}"; do
+  source "$script"
+done
+
+shift 1
+if [ "$CFENV_ENVIRONMENT" != "system" ]; then
+  export PATH="${CFENV_BIN_PATH}:${PATH}"
+fi
+exec -a "$CFENV_COMMAND" "$CFENV_COMMAND_PATH" "$@"

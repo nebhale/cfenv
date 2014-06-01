@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Summary: List all Cloud Foundry environments available to cfenv
+# Usage: cfenv environments [--bare]
+#
+# Lists all Cloud Foundry environments found in `$CFENV_ROOT/environments/*'.
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+if [ "$1" = "--bare" ]; then
+  hit_prefix=""
+  miss_prefix=""
+  current_environment=""
+  include_system=""
+else
+  hit_prefix="* "
+  miss_prefix="  "
+  current_environment="$(cfenv-environment-name || true)"
+  include_system="1"
+fi
+
+print_environment() {
+  if [ "$1" == "$current_environment" ]; then
+    echo "${hit_prefix}$(cfenv-environment 2>/dev/null)"
+  else
+    echo "${miss_prefix}$1"
+  fi
+}
+
+# Include "system" in the non-bare output, if it exists
+if [ -n "$include_system" ] && CFENV_ENVIRONMENT=system cfenv-which cf >/dev/null 2>&1; then
+  print_environment system
+fi
+
+for path in "${CFENV_ROOT}/environments/"*; do
+  if [ -d "$path" ]; then
+    print_environment "${path##*/}"
+  fi
+done

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# Summary: Set or show the global Cloud Foundry environment
+#
+# Usage: cfenv global <environment>
+#
+# Sets the global Cloud Foundry environment. You can override the global environment at
+# any time by setting a directory-specific environment with `cfenv local'
+# or by setting the `CFENV_ENVIRONMENT' environment variable.
+#
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+# Provide cfenv completions
+if [ "$1" = "--complete" ]; then
+  echo system
+  exec cfenv-environments --bare
+fi
+
+CFENV_ENVIRONMENT="$1"
+CFENV_ENVIRONMENT_FILE="${CFENV_ROOT}/environment"
+
+if [ -n "$CFENV_ENVIRONMENT" ]; then
+  cfenv-environment-file-write "$CFENV_ENVIRONMENT_FILE" "$CFENV_ENVIRONMENT"
+else
+  cfenv-environment-file-read "$CFENV_ENVIRONMENT_FILE" ||
+  cfenv-environment-file-read "${CFENV_ROOT}/global" ||
+  cfenv-environment-file-read "${CFENV_ROOT}/default" ||
+  echo system
+fi

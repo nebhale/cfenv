@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+#
+# Summary: Set or show the shell-specific Cloud Foundry environment
+#
+# Usage: cfenv shell <environment>
+#        cfenv shell --unset
+#
+# Sets a shell-specific Cloud Foundry environment by setting the `CFENV_ENVIRONMENT'
+# environment variable in your shell. This environment overrides local
+# application-specific environments and the global environment.
+#
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+# Provide cfenv completions
+if [ "$1" = "--complete" ]; then
+  echo --unset
+  echo system
+  exec cfenv-environments --bare
+fi
+
+environment="$1"
+shell="$(basename "${CFENV_SHELL:-$SHELL}")"
+
+if [ -z "$environment" ]; then
+  if [ -z "$CFENV_ENVIRONMENT" ]; then
+    echo "cfenv: no shell-specific environment configured" >&2
+    exit 1
+  else
+    echo "echo \"\$CFENV_ENVIRONMENT\""
+    exit
+  fi
+fi
+
+if [ "$environment" = "--unset" ]; then
+  case "$shell" in
+  fish )
+    echo "set -e CFENV_ENVIRONMENT"
+    ;;
+  * )
+    echo "unset CFENV_ENVIRONMENT"
+    ;;
+  esac
+  exit
+fi
+
+# Make sure the specified environment is installed.
+if cfenv-prefix "$environment" >/dev/null; then
+  case "$shell" in
+  fish )
+    echo "setenv CFENV_ENVIRONMENT \"${environment}\""
+    ;;
+  * )
+    echo "export CFENV_ENVIRONMENT=\"${environment}\""
+    ;;
+  esac
+else
+  echo "false"
+  exit 1
+fi

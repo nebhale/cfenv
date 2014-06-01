@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+#
+# Summary: Set or show the local application-specific Cloud Foundry environment
+#
+# Usage: cfenv local <environment>
+#        cfenv local --unset
+#
+# Sets the local application-specific Cloud Foundry environment by writing the
+# environment name to a file named `.cf-environment'.
+#
+# When you run a Cloud Foundry command, cfenv will look for a `.cf-environment'
+# file in the current directory and each parent directory. If no such
+# file is found in the tree, cfenv will use the global Cloud Foundry environment
+# specified with `cfenv global'. A environment specified with the
+# `CFENV_ENVIRONMENT' environment variable takes precedence over local
+# and global environments.
+#
+# For backwards compatibility, cfenv will also read environment
+# specifications from `.cfenv-environment' files, but a `.cf-environment'
+# file in the same directory takes precedence.
+#
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+# Provide cfenv completions
+if [ "$1" = "--complete" ]; then
+  echo --unset
+  echo system
+  exec cfenv-environments --bare
+fi
+
+CFENV_ENVIRONMENT="$1"
+
+if [ "$CFENV_ENVIRONMENT" = "--unset" ]; then
+  rm -f .cf-environment .cfenv-environment
+elif [ -n "$CFENV_ENVIRONMENT" ]; then
+  previous_file="$(CFENV_ENVIRONMENT= cfenv-environment-origin || true)"
+  cfenv-environment-file-write .cf-environment "$CFENV_ENVIRONMENT"
+  if [ "$previous_file" -ef .cfenv-environment ]; then
+    rm -f .cfenv-environment
+    { echo "cfenv: removed existing \`.cfenv-environment' file and migrated"
+      echo "       local environment specification to \`.cf-environment' file"
+    } >&2
+  fi
+else
+  cfenv-environment-file-read .cf-environment ||
+  cfenv-environment-file-read .cfenv-environment ||
+  { echo "cfenv: no local environment configured for this directory"
+    exit 1
+  } >&2
+fi

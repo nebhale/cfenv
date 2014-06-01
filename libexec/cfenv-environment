@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Summary: Show the current Cloud Foundry environment and its origin
+#
+# Shows the currently selected Cloud Foundry environment and how it was
+# selected. To obtain only the environment string, use `cfenv
+# environment-name'.
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+echo "$(cfenv-environment-name) (set by $(cfenv-environment-origin))"

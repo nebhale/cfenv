@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Usage: cfenv environment-file-write <file> <environment>
+
+set -e
+[ -n "$CFENV_DEBUG" ] && set -x
+
+CFENV_ENVIRONMENT_FILE="$1"
+CFENV_ENVIRONMENT="$2"
+
+if [ -z "$CFENV_ENVIRONMENT" ] || [ -z "$CFENV_ENVIRONMENT_FILE" ]; then
+  cfenv-help --usage environment-file-write >&2
+  exit 1
+fi
+
+# Make sure the specified environment is installed.
+cfenv-prefix "$CFENV_ENVIRONMENT" >/dev/null
+
+# Write the environment out to disk.
+echo "$CFENV_ENVIRONMENT" > "$CFENV_ENVIRONMENT_FILE"
