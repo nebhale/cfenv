@@ -2,64 +2,64 @@
 
 load test_helper
 
-create_version() {
-  mkdir -p "${RBENV_ROOT}/versions/$1"
+create_environment() {
+  mkdir -p "${CFENV_ROOT}/environments/$1"
 }
 
 setup() {
-  mkdir -p "$RBENV_TEST_DIR"
-  cd "$RBENV_TEST_DIR"
+  mkdir -p "$CFENV_TEST_DIR"
+  cd "$CFENV_TEST_DIR"
 }
 
-@test "no version selected" {
-  assert [ ! -d "${RBENV_ROOT}/versions" ]
-  run rbenv-version-name
+@test "no environment selected" {
+  assert [ ! -d "${CFENV_ROOT}/environments" ]
+  run cfenv-environment-name
   assert_success "system"
 }
 
-@test "system version is not checked for existance" {
-  RBENV_VERSION=system run rbenv-version-name
+@test "system environment is not checked for existance" {
+  CFENV_ENVIRONMENT=system run cfenv-environment-name
   assert_success "system"
 }
 
-@test "RBENV_VERSION has precedence over local" {
-  create_version "1.8.7"
-  create_version "1.9.3"
+@test "CFENV_ENVIRONMENT has precedence over local" {
+  create_environment "1.8.7"
+  create_environment "1.9.3"
 
-  cat > ".ruby-version" <<<"1.8.7"
-  run rbenv-version-name
+  cat > ".cf-environment" <<<"1.8.7"
+  run cfenv-environment-name
   assert_success "1.8.7"
 
-  RBENV_VERSION=1.9.3 run rbenv-version-name
+  CFENV_ENVIRONMENT=1.9.3 run cfenv-environment-name
   assert_success "1.9.3"
 }
 
 @test "local file has precedence over global" {
-  create_version "1.8.7"
-  create_version "1.9.3"
+  create_environment "1.8.7"
+  create_environment "1.9.3"
 
-  cat > "${RBENV_ROOT}/version" <<<"1.8.7"
-  run rbenv-version-name
+  cat > "${CFENV_ROOT}/environment" <<<"1.8.7"
+  run cfenv-environment-name
   assert_success "1.8.7"
 
-  cat > ".ruby-version" <<<"1.9.3"
-  run rbenv-version-name
+  cat > ".cf-environment" <<<"1.9.3"
+  run cfenv-environment-name
   assert_success "1.9.3"
 }
 
-@test "missing version" {
-  RBENV_VERSION=1.2 run rbenv-version-name
-  assert_failure "rbenv: version \`1.2' is not installed"
+@test "missing environment" {
+  CFENV_ENVIRONMENT=1.2 run cfenv-environment-name
+  assert_failure "cfenv: environment \`1.2' is not installed"
 }
 
-@test "version with prefix in name" {
-  create_version "1.8.7"
-  cat > ".ruby-version" <<<"ruby-1.8.7"
-  run rbenv-version-name
+@test "environment with prefix in name" {
+  create_environment "1.8.7"
+  cat > ".cf-environment" <<<"cf-1.8.7"
+  run cfenv-environment-name
   assert_success
   assert_output <<OUT
-warning: ignoring extraneous \`ruby-' prefix in version \`ruby-1.8.7'
-         (set by ${PWD}/.ruby-version)
+warning: ignoring extraneous \`cf-' prefix in environment \`cf-1.8.7'
+         (set by ${PWD}/.cf-environment)
 1.8.7
 OUT
 }
