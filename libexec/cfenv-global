@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 #
-# Summary: Set or show the global Ruby version
+# Summary: Set or show the global Cloud Foundry environment
 #
-# Usage: rbenv global <version>
+# Usage: cfenv global <environment>
 #
-# Sets the global Ruby version. You can override the global version at
-# any time by setting a directory-specific version with `rbenv local'
-# or by setting the `RBENV_VERSION' environment variable.
+# Sets the global Cloud Foundry environment. You can override the global environment at
+# any time by setting a directory-specific environment with `cfenv local'
+# or by setting the `CFENV_ENVIRONMENT' environment variable.
 #
-# <version> should be a string matching a Ruby version known to rbenv.
-# The special version string `system' will use your default system Ruby.
-# Run `rbenv versions' for a list of available Ruby versions.
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
-# Provide rbenv completions
+# Provide cfenv completions
 if [ "$1" = "--complete" ]; then
   echo system
-  exec rbenv-versions --bare
+  exec cfenv-environments --bare
 fi
 
-RBENV_VERSION="$1"
-RBENV_VERSION_FILE="${RBENV_ROOT}/version"
+CFENV_ENVIRONMENT="$1"
+CFENV_ENVIRONMENT_FILE="${CFENV_ROOT}/environment"
 
-if [ -n "$RBENV_VERSION" ]; then
-  rbenv-version-file-write "$RBENV_VERSION_FILE" "$RBENV_VERSION"
+if [ -n "$CFENV_ENVIRONMENT" ]; then
+  cfenv-environment-file-write "$CFENV_ENVIRONMENT_FILE" "$CFENV_ENVIRONMENT"
 else
-  rbenv-version-file-read "$RBENV_VERSION_FILE" ||
-  rbenv-version-file-read "${RBENV_ROOT}/global" ||
-  rbenv-version-file-read "${RBENV_ROOT}/default" ||
+  cfenv-environment-file-read "$CFENV_ENVIRONMENT_FILE" ||
+  cfenv-environment-file-read "${CFENV_ROOT}/global" ||
+  cfenv-environment-file-read "${CFENV_ROOT}/default" ||
   echo system
 fi
