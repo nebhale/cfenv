@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Summary: Configure the shell environment for rbenv
-# Usage: eval "$(rbenv init - [--no-rehash] [<shell>])"
+# Summary: Configure the shell environment for cfenv
+# Usage: eval "$(cfenv init - [--no-rehash] [<shell>])"
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
 print=""
 no_rehash=""
@@ -30,7 +30,7 @@ fi
 
 READLINK=$(type -p greadlink readlink | head -1)
 if [ -z "$READLINK" ]; then
-  echo "rbenv: cannot find readlink - are you missing GNU coreutils?" >&2
+  echo "cfenv: cannot find readlink - are you missing GNU coreutils?" >&2
   exit 1
 fi
 
@@ -73,15 +73,15 @@ if [ -z "$print" ]; then
     ;;
   esac
 
-  { echo "# Load rbenv automatically by adding"
+  { echo "# Load cfenv automatically by adding"
     echo "# the following to ${profile}:"
     echo
     case "$shell" in
     fish )
-      echo 'status --is-interactive; and . (rbenv init -|psub)'
+      echo 'status --is-interactive; and . (cfenv init -|psub)'
       ;;
     * )
-      echo 'eval "$(rbenv init -)"'
+      echo 'eval "$(cfenv init -)"'
       ;;
     esac
     echo
@@ -90,29 +90,29 @@ if [ -z "$print" ]; then
   exit 1
 fi
 
-mkdir -p "${RBENV_ROOT}/"{shims,versions}
+mkdir -p "${CFENV_ROOT}/"{shims,environments}
 
-if [[ ":${PATH}:" != *:"${RBENV_ROOT}/shims":* ]]; then
+if [[ ":${PATH}:" != *:"${CFENV_ROOT}/shims":* ]]; then
   case "$shell" in
   fish )
-    echo "setenv PATH '${RBENV_ROOT}/shims' \$PATH"
+    echo "setenv PATH '${CFENV_ROOT}/shims' \$PATH"
   ;;
   * )
-    echo 'export PATH="'${RBENV_ROOT}'/shims:${PATH}"'
+    echo 'export PATH="'${CFENV_ROOT}'/shims:${PATH}"'
   ;;
   esac
 fi
 
 case "$shell" in
 fish )
-  echo "setenv RBENV_SHELL $shell"
+  echo "setenv CFENV_SHELL $shell"
 ;;
 * )
-  echo "export RBENV_SHELL=$shell"
+  echo "export CFENV_SHELL=$shell"
 ;;
 esac
 
-completion="${root}/completions/rbenv.${shell}"
+completion="${root}/completions/cfenv.${shell}"
 if [ -r "$completion" ]; then
   case "$shell" in
   fish ) echo ". '$completion'" ;;
@@ -121,22 +121,22 @@ if [ -r "$completion" ]; then
 fi
 
 if [ -z "$no_rehash" ]; then
-  echo 'rbenv rehash 2>/dev/null'
+  echo 'cfenv rehash 2>/dev/null'
 fi
 
-commands=(`rbenv-commands --sh`)
+commands=(`cfenv-commands --sh`)
 case "$shell" in
 fish )
   cat <<EOS
-function rbenv
+function cfenv
   set command \$argv[1]
   set -e argv[1]
 
   switch "\$command"
   case ${commands[*]}
-    eval (rbenv "sh-\$command" \$argv)
+    eval (cfenv "sh-\$command" \$argv)
   case '*'
-    command rbenv "\$command" \$argv
+    command cfenv "\$command" \$argv
   end
 end
 EOS
@@ -144,13 +144,13 @@ EOS
   ;;
 ksh )
   cat <<EOS
-function rbenv {
+function cfenv {
   typeset command
 EOS
   ;;
 * )
   cat <<EOS
-rbenv() {
+cfenv() {
   local command
 EOS
   ;;
@@ -165,9 +165,9 @@ cat <<EOS
 
   case "\$command" in
   ${commands[*]})
-    eval "\`rbenv "sh-\$command" "\$@"\`";;
+    eval "\`cfenv "sh-\$command" "\$@"\`";;
   *)
-    command rbenv "\$command" "\$@";;
+    command cfenv "\$command" "\$@";;
   esac
 }
 EOS
