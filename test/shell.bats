@@ -2,51 +2,51 @@
 
 load test_helper
 
-@test "no shell version" {
-  mkdir -p "${RBENV_TEST_DIR}/myproject"
-  cd "${RBENV_TEST_DIR}/myproject"
-  echo "1.2.3" > .ruby-version
-  RBENV_VERSION="" run rbenv-sh-shell
-  assert_failure "rbenv: no shell-specific version configured"
+@test "no shell environment" {
+  mkdir -p "${CFENV_TEST_DIR}/myproject"
+  cd "${CFENV_TEST_DIR}/myproject"
+  echo "1.2.3" > .cf-environment
+  CFENV_ENVIRONMENT="" run cfenv-sh-shell
+  assert_failure "cfenv: no shell-specific environment configured"
 }
 
-@test "shell version" {
-  RBENV_SHELL=bash RBENV_VERSION="1.2.3" run rbenv-sh-shell
-  assert_success 'echo "$RBENV_VERSION"'
+@test "shell environment" {
+  CFENV_SHELL=bash CFENV_ENVIRONMENT="1.2.3" run cfenv-sh-shell
+  assert_success 'echo "$CFENV_ENVIRONMENT"'
 }
 
-@test "shell version (fish)" {
-  RBENV_SHELL=fish RBENV_VERSION="1.2.3" run rbenv-sh-shell
-  assert_success 'echo "$RBENV_VERSION"'
+@test "shell environment (fish)" {
+  CFENV_SHELL=fish CFENV_ENVIRONMENT="1.2.3" run cfenv-sh-shell
+  assert_success 'echo "$CFENV_ENVIRONMENT"'
 }
 
 @test "shell unset" {
-  RBENV_SHELL=bash run rbenv-sh-shell --unset
-  assert_success "unset RBENV_VERSION"
+  CFENV_SHELL=bash run cfenv-sh-shell --unset
+  assert_success "unset CFENV_ENVIRONMENT"
 }
 
 @test "shell unset (fish)" {
-  RBENV_SHELL=fish run rbenv-sh-shell --unset
-  assert_success "set -e RBENV_VERSION"
+  CFENV_SHELL=fish run cfenv-sh-shell --unset
+  assert_success "set -e CFENV_ENVIRONMENT"
 }
 
-@test "shell change invalid version" {
-  run rbenv-sh-shell 1.2.3
+@test "shell change invalid environment" {
+  run cfenv-sh-shell 1.2.3
   assert_failure
   assert_output <<SH
-rbenv: version \`1.2.3' not installed
+cfenv: environment \`1.2.3' not installed
 false
 SH
 }
 
-@test "shell change version" {
-  mkdir -p "${RBENV_ROOT}/versions/1.2.3"
-  RBENV_SHELL=bash run rbenv-sh-shell 1.2.3
-  assert_success 'export RBENV_VERSION="1.2.3"'
+@test "shell change environment" {
+  mkdir -p "${CFENV_ROOT}/environments/1.2.3"
+  CFENV_SHELL=bash run cfenv-sh-shell 1.2.3
+  assert_success 'export CFENV_ENVIRONMENT="1.2.3"'
 }
 
-@test "shell change version (fish)" {
-  mkdir -p "${RBENV_ROOT}/versions/1.2.3"
-  RBENV_SHELL=fish run rbenv-sh-shell 1.2.3
-  assert_success 'setenv RBENV_VERSION "1.2.3"'
+@test "shell change environment (fish)" {
+  mkdir -p "${CFENV_ROOT}/environments/1.2.3"
+  CFENV_SHELL=fish run cfenv-sh-shell 1.2.3
+  assert_success 'setenv CFENV_ENVIRONMENT "1.2.3"'
 }

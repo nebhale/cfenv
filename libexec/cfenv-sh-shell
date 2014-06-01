@@ -1,61 +1,61 @@
 #!/usr/bin/env bash
 #
-# Summary: Set or show the shell-specific Ruby version
+# Summary: Set or show the shell-specific Cloud Foundry environment
 #
-# Usage: rbenv shell <version>
-#        rbenv shell --unset
+# Usage: cfenv shell <environment>
+#        cfenv shell --unset
 #
-# Sets a shell-specific Ruby version by setting the `RBENV_VERSION'
-# environment variable in your shell. This version overrides local
-# application-specific versions and the global version.
+# Sets a shell-specific Cloud Foundry environment by setting the `CFENV_ENVIRONMENT'
+# environment variable in your shell. This environment overrides local
+# application-specific environments and the global environment.
 #
-# <version> should be a string matching a Ruby version known to rbenv.
-# The special version string `system' will use your default system Ruby.
-# Run `rbenv versions' for a list of available Ruby versions.
+# <environment> should be a string matching a Cloud Foundry environment known to cfenv.
+# The special environment string `system' will use your default system Cloud Foundry.
+# Run `cfenv environments' for a list of available Cloud Foundry environments.
 
 set -e
-[ -n "$RBENV_DEBUG" ] && set -x
+[ -n "$CFENV_DEBUG" ] && set -x
 
-# Provide rbenv completions
+# Provide cfenv completions
 if [ "$1" = "--complete" ]; then
   echo --unset
   echo system
-  exec rbenv-versions --bare
+  exec cfenv-environments --bare
 fi
 
-version="$1"
-shell="$(basename "${RBENV_SHELL:-$SHELL}")"
+environment="$1"
+shell="$(basename "${CFENV_SHELL:-$SHELL}")"
 
-if [ -z "$version" ]; then
-  if [ -z "$RBENV_VERSION" ]; then
-    echo "rbenv: no shell-specific version configured" >&2
+if [ -z "$environment" ]; then
+  if [ -z "$CFENV_ENVIRONMENT" ]; then
+    echo "cfenv: no shell-specific environment configured" >&2
     exit 1
   else
-    echo "echo \"\$RBENV_VERSION\""
+    echo "echo \"\$CFENV_ENVIRONMENT\""
     exit
   fi
 fi
 
-if [ "$version" = "--unset" ]; then
+if [ "$environment" = "--unset" ]; then
   case "$shell" in
   fish )
-    echo "set -e RBENV_VERSION"
+    echo "set -e CFENV_ENVIRONMENT"
     ;;
   * )
-    echo "unset RBENV_VERSION"
+    echo "unset CFENV_ENVIRONMENT"
     ;;
   esac
   exit
 fi
 
-# Make sure the specified version is installed.
-if rbenv-prefix "$version" >/dev/null; then
+# Make sure the specified environment is installed.
+if cfenv-prefix "$environment" >/dev/null; then
   case "$shell" in
   fish )
-    echo "setenv RBENV_VERSION \"${version}\""
+    echo "setenv CFENV_ENVIRONMENT \"${environment}\""
     ;;
   * )
-    echo "export RBENV_VERSION=\"${version}\""
+    echo "export CFENV_ENVIRONMENT=\"${environment}\""
     ;;
   esac
 else
