@@ -5,7 +5,7 @@ load test_helper
 @test "blank invocation" {
   run cfenv
   assert_success
-  assert [ "${lines[0]}" = "cfenv 1.0.0" ]
+  assert [ "${lines[0]}" = "cfenv 1.0.0.pre" ]
 }
 
 @test "invalid command" {
