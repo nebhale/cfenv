@@ -223,7 +223,7 @@ The special environment name `system` tells `cfenv` to use the system Cloud Foun
 
 When run without an environment name, `cfenv global` reports the currently configured global environment.
 
-### `rbenv shell`
+### `cfenv shell`
 
 Sets a shell-specific Cloud Foundry environment by setting the `CFENV_ENVIRONMENT` environment variable in your shell. This environment overrides application-specific environments and the global environment.
 
@@ -237,7 +237,7 @@ Note that you'll need `rbenv`'s shell integration enabled (step 3 of the install
 
     $ export CFENV_ENVIRONMENT=production
 
-### `rbenv environments`
+### `cgenv environments`
 
 Lists all Cloud Foundry environments known to `cfenv`, and shows an asterisk next to the currently active environment.
 
@@ -246,7 +246,7 @@ Lists all Cloud Foundry environments known to `cfenv`, and shows an asterisk nex
       test
     * production (set by /Users/bhale/.cfenv/environment)
 
-### `rbenv environment`
+### `cfenv environment`
 
 Displays the currently active Cloud Foundry environment, along with information on how it was set.
 
