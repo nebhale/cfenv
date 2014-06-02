@@ -11,14 +11,14 @@ setup() {
   cd "$CFENV_TEST_DIR"
 }
 
-stub_system_ruby() {
-  local stub="${CFENV_TEST_DIR}/bin/ruby"
+stub_system_cf() {
+  local stub="${CFENV_TEST_DIR}/bin/cf"
   mkdir -p "$(dirname "$stub")"
   touch "$stub" && chmod +x "$stub"
 }
 
 @test "no environments installed" {
-  stub_system_ruby
+  stub_system_cf
   assert [ ! -d "${CFENV_ROOT}/environments" ]
   run cfenv-environments
   assert_success "* system (set by ${CFENV_ROOT}/environment)"
@@ -31,7 +31,7 @@ stub_system_ruby() {
 }
 
 @test "single environment installed" {
-  stub_system_ruby
+  stub_system_cf
   create_environment "1.9"
   run cfenv-environments
   assert_success
@@ -48,7 +48,7 @@ OUT
 }
 
 @test "multiple environments" {
-  stub_system_ruby
+  stub_system_cf
   create_environment "1.8.7"
   create_environment "1.9.3"
   create_environment "2.0.0"
@@ -63,7 +63,7 @@ OUT
 }
 
 @test "indicates current environment" {
-  stub_system_ruby
+  stub_system_cf
   create_environment "1.9.3"
   create_environment "2.0.0"
   CFENV_ENVIRONMENT=1.9.3 run cfenv-environments
@@ -87,7 +87,7 @@ OUT
 }
 
 @test "globally selected environment" {
-  stub_system_ruby
+  stub_system_cf
   create_environment "1.9.3"
   create_environment "2.0.0"
   cat > "${CFENV_ROOT}/environment" <<<"1.9.3"
@@ -101,7 +101,7 @@ OUT
 }
 
 @test "per-project environment" {
-  stub_system_ruby
+  stub_system_cf
   create_environment "1.9.3"
   create_environment "2.0.0"
   cat > ".cf-environment" <<<"1.9.3"
