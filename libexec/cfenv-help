@@ -92,7 +92,7 @@ print_summary() {
   eval "$(documentation_for "$command")"
 
   if [ -n "$summary" ]; then
-    printf "   %-9s   %s\n" "$command" "$summary"
+    printf "   %-12s   %s\n" "$command" "$summary"
   fi
 }
 
